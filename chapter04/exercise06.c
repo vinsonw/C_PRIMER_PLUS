@@ -10,7 +10,7 @@ int main(void)
     scanf("%s %s", first_name, last_name);
     printf("Okay, this is the stats:\n");
     printf("%21s %21s\n", first_name, last_name);
-    printf("%21d %21d\n", strlen(first_name), strlen(last_name)); // if %21d was written as %21s, string thins would happen.
+    printf("%21d %21d\n", strlen(first_name), strlen(last_name)); // if %21d is written as %21s, strange things would happen.
 
     printf("And this is the same stats in left-aligned form:\n");
     printf("%-21s %-21s\n", first_name, last_name);
