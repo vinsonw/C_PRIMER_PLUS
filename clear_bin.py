@@ -13,3 +13,6 @@ for root, dirs, files in os.walk(".", topdown=False):
                     os.remove(
                         os.path.join('.', dir_name, target_file)
                     )
+                    print('deleted: ', 
+                        os.path.join('.', dir_name, target_file)
+                    )
