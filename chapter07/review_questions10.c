@@ -1,4 +1,4 @@
-// rewrite Review Question 9 without continue and goto keywords.
+// rewrite Review Question 9 without "continue" and "goto" keywords.
 #include <stdio.h>
 
 int main(void)
