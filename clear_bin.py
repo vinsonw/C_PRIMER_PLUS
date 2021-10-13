@@ -7,7 +7,9 @@ root_dir = os.path.dirname(
     os.path.abspath(__file__)
 )
 
-print(root_dir)
+print('working from:', root_dir)
+
+existsBinary = False
 
 for root, dirs, files in os.walk(root_dir, topdown=False):
     for dir_name in dirs:
@@ -24,3 +26,7 @@ for root, dirs, files in os.walk(root_dir, topdown=False):
                     print('deleted: ', 
                         os.path.join(root_dir, dir_name, target_file)
                     )
+                    existsBinary = True
+
+if not existsBinary:
+    print('No binaries to delete.')
