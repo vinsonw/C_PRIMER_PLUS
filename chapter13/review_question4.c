@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     double temp;
     while ( fscanf(input,"%lf", &temp) == 1 ) 
     // fscanf() return EOF(-1) at the end of file or at manual EOF signal
-    // somehow newline in comand-line doesn't trigger EOF only Ctrl+D does
+    // somehow newline in command-line doesn't trigger EOF only Ctrl+D does
     {
         ttl += temp;
         ++num_cnt;
