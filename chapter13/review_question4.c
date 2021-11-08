@@ -1,5 +1,6 @@
 /*
 * calculate the arithmetic mean(the average)
+* used with num.txt
 */
 #include <stdio.h>
 #include <stdlib.h>
