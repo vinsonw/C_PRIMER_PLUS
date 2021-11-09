@@ -4,5 +4,4 @@ the incident
 that happened
 in the liitle
 town
-int 1978?
-
+in 1978, hah?

@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc == 1)
+    if (argc != 3)
     {
         fprintf(stderr, "Wrong input.");
         exit (0);
@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
     int gotcha = 0;
     while ((ch_iter = getc(ptr)) != EOF)
     {
-        if ( ch_iter == ch)
+        if ( ch_iter == ch )
             gotcha = 1;
-        if ( ch_iter == '\n')
+        if ( ch_iter == '\n' )
         {
             // this line is the key to making the following fseek() right:
             // after ch_iter reads '\n', file postion indicator of "ptr" moves to the char after '\n',
@@ -50,16 +50,31 @@ int main(int argc, char *argv[])
                 fseek(ptr, begin-end-1L, SEEK_CUR);
 
                 for (count=begin;count<=end;count++)
-                 {
-                     ch_inner = getc(ptr);
-                     putchar(ch_inner);
-                 }   
-                 gotcha = 0;
+                {
+                    ch_inner = getc(ptr);
+                    putchar(ch_inner);
+                }
+                gotcha = 0;
             }
             begin = end+1L;
         }
 
     }
+
+    // Because Unix-like systems add a newline automatically at the end of FILE
+    // even there is a newline
+    // experiment with: hexdump -C foo1.txt
+    // see for more detail: https://github.com/microsoft/vscode/issues/35181
+    // therefore, the logic above always captures all lines, including the last
+    // line without an explicit terminating newline.
+
+    // if the mechanism doesn't exit, we need to take care of the possible last line
+    // without an explicit terminating newline because it wouldn't be captured by
+    // the "begin"/"end" logic above.
+
+    // the below statements will print the implicit newline(won't be shown on Unix, usually)
+    fseek(ptr, -1L, SEEK_END);
+    printf("The previous char is %c\n", getc(ptr));
 
     return 0;
 }
