@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     if ( (fp = fopen(argv[1], "r")) == NULL )
     {
-        fprintf(stderr, "Not good, not good, man.");
+        fprintf(stderr, "Not good, not good, man. Couldn't open %s\n", argv[1]);
         exit(0);
     }
     int ch;

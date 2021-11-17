@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 
     if ( (fp = fopen(argv[1], "r")) == NULL)
     {
-        printf("fuck");
+        fprintf(stderr, "Couldn't open %s\n", argv[1]);
         exit(0);
     }
     int ch;
