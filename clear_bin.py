@@ -23,6 +23,8 @@ if __name__ == '__main__':
 
     for root, dirs, files in os.walk(root_dir, topdown=True):
         # print(f">>> {root}, {dirs}, {files}")
+        if '.git' in root or '.vscode' in root:
+            continue # skip hidden directories
         for file in files:
             existsBinary = existsBinary or delete_binary_file(file, root)
 
