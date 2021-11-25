@@ -5,11 +5,11 @@ import os
 
 def delete_binary_file(target_file, dir_name):
     isBinary = False
-    if target_file.endswith(".md") or target_file.endswith(".dat"):
-        print(f"Skipping {os.path.join(dir_name, target_file)}")
-        return isBinary
     type_, encodeing = mimetypes.guess_type(target_file)
     if type_ == None:
+        if  target_file.endswith(".dat"):
+            print(f"Skipping {os.path.join(dir_name, target_file)}")
+            return isBinary
         os.remove( os.path.join(dir_name, target_file) )
         print( 'deleted: ', os.path.join(dir_name, target_file) )
         isBinary = True
