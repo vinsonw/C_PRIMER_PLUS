@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "tree.h"
+#include "tree_e8.h"
 
 /* local data type */
 typedef struct pair {
@@ -64,6 +64,12 @@ bool AddItem(const Item * pi, Tree * ptree)
         // return false;
 
         // Review question 07
+        // printf("%s alread exists, count increment by 1 to %d\n",
+        // temp->item.word,
+        // ++(temp->item.word_cnt));
+        // return true;
+
+        // Exercise 08
         printf("%s alread exists, count increment by 1 to %d\n",
         temp->item.word,
         ++(temp->item.word_cnt));

@@ -1,13 +1,19 @@
 /* tree.h -- binary search tree */
 /*           no dublicate items are allowed in this tree */
-#ifndef _TREE_H_
-#define _TREE_H_
+#ifndef _TREE_E8_H_
+#define _TREE_E8_H_
 #include <stdbool.h>
+
+// typedef struct item
+// {
+//     char word[20]; // for review question 7, P858, Vol.2
+//     int word_cnt;
+// } Item;
 
 typedef struct item
 {
-    char word[20]; // for review question 7, P858, Vol.2
-    int word_cnt;
+    char petname[20];
+    char petkind[20];
 } Item;
 
 #define MAXITEMS 2000

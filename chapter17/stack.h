@@ -19,25 +19,28 @@
 #ifndef _STACK_H
 #define _STACK_H
 
-typedef struct item {
-   // any item you want to define.
-} Item;
+#define MAX_STACK_SIZE 15
+
+// typedef struct item {
+//    // any item you want to define.
+// } Item;
+
+typedef char Item;
 
 typedef struct node {
    Item item;
-   struct node * up;
    struct node * down;
 } Node;
 
 typedef struct stack {
-   Node * stack_bottom;
+   Node * stack_top;
    int stack_size;
 } Stack;
 
 void InitializeStack(Stack *);
 
-void PushItem(Item *, Stack *);
-void PopItem(Item *, Stack *);
+int PushItem(Item *, Stack *);
+int PopItem(Item *, Stack *);
 bool ItemInStack(Item *, Stack *);
 
 int StackItemCount(Stack *);
