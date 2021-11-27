@@ -15,7 +15,7 @@ static bool ToLeft(const Item * i1, const Item *i2);
 static bool ToRight(const Item * i1, const Item *i2);
 static void AddNode (Trnode * new_node, Trnode * root);
 static void InOrder(const Trnode * root, void (* pfun)(Item item));
-static void DeleteNode(Trnode **ptr);
+static void DeleteNodeOrItem(Tree *pt, Trnode **ptr, const Item *pi);
 static void DeleteAllNodes(Trnode * ptr);
 static Pair SeekItem(const Item *pi, const Tree *ptree);
 
@@ -23,6 +23,7 @@ void InitializeTree(Tree * ptree)
 {
     ptree->root = NULL;
     ptree->size = 0;
+    ptree->entry_size = 0;
 }
 
 bool TreeIsEmpty(const Tree * ptree)
@@ -43,7 +44,7 @@ bool TreeIsFull(const Tree * ptree)
 
 int TreeItemCount(const Tree * ptree)
 {
-    return ptree->size;
+    return ptree->entry_size;
 }
 
 bool AddItem(const Item * pi, Tree * ptree)
@@ -56,23 +57,68 @@ bool AddItem(const Item * pi, Tree * ptree)
         fprintf(stderr, "Tree is full\n");
         return false;
     }
-    if ( (temp = SeekItem(pi, ptree).child) != NULL)
+
+    // printf("Now pi->petname: %s pi->petkind %s\n",
+    // pi->petname, pi->petkind
+    // );
+
+    if ( (temp = SeekItem(pi, ptree).child) != NULL )
     {
-        // problem dependent
-
-        // fprintf(stderr, "Attempted to add duplicate item\n");
-        // return false;
-
-        // Review question 07
-        // printf("%s alread exists, count increment by 1 to %d\n",
-        // temp->item.word,
-        // ++(temp->item.word_cnt));
-        // return true;
 
         // Exercise 08
-        printf("%s alread exists, count increment by 1 to %d\n",
-        temp->item.word,
-        ++(temp->item.word_cnt));
+        bool petKindExist = false;
+        printf("%s already exists as petkind %s\n",
+        temp->item.petname,
+        temp->item.petkind
+        );
+
+        petKindExist =  (!strcmp(pi->petkind, temp->item.petkind)) \
+        || petKindExist;
+
+        if (petKindExist)
+        {
+            fprintf(stderr, "%s %s already exists!\n", pi->petname, pi->petkind);
+            return false;
+        }
+
+        Adj * adj, * prevAdj;
+        adj = temp->item.next;
+        prevAdj = adj;
+
+        while  (NULL != adj)
+        {
+            printf("and also as petkind %s\n", adj->petkind);
+            petKindExist = (!strcmp(adj->petkind, pi->petkind)) || petKindExist;
+            prevAdj = adj;
+            adj = adj->next;
+        }
+
+        if (petKindExist)
+        {
+            fprintf(stderr, "%s %s already exists!\n", pi->petname, pi->petkind);
+            return false;
+        }
+
+        // if the control flow reaches here, the petname-petkind doesn't exit
+        adj = (Adj *) malloc (sizeof(Adj));
+
+        // set up the new Adj
+        strcpy(adj->petkind, pi->petkind);
+        adj->next = NULL;
+
+        // connect new Adj to preceding Adj or Item 
+        if (NULL == prevAdj) // No Ajd on this node before
+            // prevAdj = adj; <- This is a bug!
+            temp->item.next = adj;
+        else // Adjs already exist.
+            prevAdj->next = adj;
+
+        printf("%s as NEW petkind \"%s\" was added.\n", 
+        pi->petname,
+        pi->petkind);
+
+        ptree->entry_size++;
+
         return true;
 
     }
@@ -84,6 +130,7 @@ bool AddItem(const Item * pi, Tree * ptree)
     }
     /* succeeded in creating a new node */
     ptree->size++;
+    ptree->entry_size++;
 
     if (ptree->root == NULL)
         ptree->root = new_node;
@@ -93,26 +140,93 @@ bool AddItem(const Item * pi, Tree * ptree)
     return true;
 }
 
-bool InTree(const Item *pi, Tree * ptree)
+bool InTree(const Item *pi, const Tree * ptree)
 {
-    return (SeekItem(pi, ptree).child == NULL) ? false: true;
+    // return (SeekItem(pi, ptree).child == NULL) ? false: true;
+
+    // Exercise 08
+    Trnode * pnode = SeekItem(pi, ptree).child;
+    if (pnode != NULL) // petname exists, see SeekItem definition
+    {
+        if ( !strcmp(pnode->item.petkind , pi->petkind) )
+            return true;
+
+        Adj * adj;
+        adj = pnode->item.next;
+        while (adj != NULL)
+        {
+            if ( !strcmp(adj->petkind , pi->petkind) )
+                return true;
+            adj = adj->next;
+        }
+
+        // if the control flow gets here, not found
+        return false;
+    }
+    else // no petname
+        return false;
 }
+void PrintOtherItemsInTheSameNode(const Item *pi, const Tree * ptree)
+{
+    // return (SeekItem(pi, ptree).child == NULL) ? false: true;
+
+    // Exercise 08
+    Trnode * pnode = SeekItem(pi, ptree).child;
+    if (pnode != NULL) // petname exists, see SeekItem definition
+    {
+        bool existsPetWithSameName = false;
+        if ( strcmp(pnode->item.petkind , pi->petkind) )
+        {
+            existsPetWithSameName = true;
+            printf(">>> %s the %s\n", pi->petname, pnode->item.petkind);
+        }
+
+        Adj * adj;
+        adj = pnode->item.next;
+        while (adj != NULL)
+        {
+
+            if ( strcmp(adj->petkind, pi->petkind) )
+            {
+                existsPetWithSameName = true;
+                printf(">>> %s the %s\n", pi->petname, adj->petkind);
+            }
+            adj = adj->next;
+        }
+        if (!existsPetWithSameName)
+        {
+            printf("None.\n");
+        }
+
+        // if the control flow gets here, not found
+    }
+    else // no petname
+        printf("%s the %s not in the tree.\n", pi->petname, pi->petkind);
+}
+
 
 bool DeleteItem(const Item *pi, Tree *ptree)
 {
+    if (!InTree(pi, ptree)) // test if the pet was in the tree.
+    {
+        fprintf(stderr, "%s %s not in the club!\n", pi->petname, pi->petkind);
+        return false;
+    }
+
     Pair look;
 
-    look = SeekItem(pi, ptree);
+    // only looking for petname match, but we know from above the item
+    // with the petkind was in the tree.
+    look = SeekItem(pi, ptree); 
     if (look.child == NULL)
         return false;
     
-    if (look.child == NULL)
-        DeleteNode(&ptree->root);
+    if (look.parent == NULL) // meaning the child is root, which is the target
+        DeleteNodeOrItem(ptree, &ptree->root, pi);
     else if (look.parent->left == look.child)
-        DeleteNode(&look.parent->left);
+        DeleteNodeOrItem(ptree, &look.parent->left, pi);
     else
-        DeleteNode(&look.parent->right);
-    ptree->size--;
+        DeleteNodeOrItem(ptree, &look.parent->right, pi);
 
     return true;
 }
@@ -129,6 +243,7 @@ void DeleteAll(Tree * ptree)
         DeleteAllNodes(ptree->root);
     ptree->root = NULL;
     ptree->size = 0;
+    ptree->entry_size--;
 }
 
 static void InOrder(const Trnode * root, void (*pfun)(Item item))
@@ -184,7 +299,7 @@ static bool ToLeft(const Item * i1, const Item * i2)
     // Problem dependent
     
     // for Review Question 7
-    if ( strcmp(i1->word, i2->word) < 0 )
+    if ( strcmp(i1->petname, i2->petname) < 0 )
     {
         return true;
     }
@@ -198,7 +313,7 @@ static bool ToRight(const Item * i1, const Item * i2)
 
     // Problem dependent
     // for Review Question 7
-    if ( strcmp(i1->word, i2->word) > 0)
+    if ( strcmp(i1->petname, i2->petname) > 0)
     {
         // printf("R: %s vs %s\n", i1->word, i2->word);
         return true;
@@ -260,29 +375,84 @@ static Pair SeekItem(const Item *pi, const Tree *ptree)
     return look;
 }
 
-static void DeleteNode(Trnode **ptr)
+static void DeleteNodeOrItem(Tree *pt, Trnode **ptr, const Item *pi)
 {
     Trnode * temp;
-    if ( (*ptr)->left == NULL )
+    if (temp->item.next == NULL) // when there are no Adjs, delete the whole node
     {
-        temp = *ptr;
-        *ptr = (*ptr)->right;
-        free(temp);
+        if ( (*ptr)->left == NULL )
+        {
+            temp = *ptr;
+            *ptr = (*ptr)->right;
+            free(temp);
+        }
+        else if ( (*ptr)->right == NULL )
+        {
+            temp = *ptr;
+            *ptr = (*ptr)->left;
+            free(temp);
+        }
+        else
+        {
+            for (temp = (*ptr)->left; temp->right != NULL;
+            temp = temp->right)
+                continue;
+            temp->right = (*ptr)->right;
+            temp = *ptr;
+            *ptr = (*ptr)->left;
+            free(temp);
+        }
+        // update pt->size pt->entry-size
+        pt->size--;
+        pt->entry_size--;
     }
-    else if ( (*ptr)->right == NULL )
+    else // Adjs exist
     {
-        temp = *ptr;
-        *ptr = (*ptr)->left;
-        free(temp);
-    }
-    else
-    {
-        for (temp = (*ptr)->left; temp->right != NULL;
-        temp = temp->right)
-            continue;
-        temp->right = (*ptr)->right;
-        temp = *ptr;
-        *ptr = (*ptr)->left;
-        free(temp);
+        Adj * adj = temp->item.next;
+        Adj * prevAdj = adj;
+
+        // Exercise 08
+        // The data arrangement is Node(Item, left, right), 
+        // and the Item -> 1st Adj -> 2nd Adj -> 3rd Adj -> ...
+        // There are three scenarios to consider:
+
+        // Scenario 0: the Item is the petname-petkind to be deleted
+        if ( !strcmp(temp->item.petkind, pi->petkind) )
+        {
+            temp->item.next = adj->next;
+            strcpy(temp->item.petkind, adj->petkind);
+            free(adj);
+            pt->entry_size--;
+            return;
+        }
+
+        // Scenario 1: the Adj that is immediately after Item(aka the 1st Adj) is the petname-petkind to be deleted
+        if ( !strcmp(adj->petkind, pi->petkind) )
+        {
+            temp->item.next = adj->next;
+            free(adj);
+            pt->entry_size--;
+            return;
+        }
+        
+        // Scenario 2: the 2nd Adj and onwards
+        adj = adj->next;
+        while ( adj != NULL )
+        {
+            if ( !strcmp(adj->petkind, pi->petkind) )
+            {
+                prevAdj->next = adj->next;
+                free(adj);
+                pt->entry_size--;
+                return;
+            }
+            prevAdj = adj; 
+            adj = adj->next;
+        }
+
+        // if the control flow reaches here, the item is not in the tree.
+        // But in Exercise 08, the calling fuction DeleteItem has used InTree function
+        // to rule out the possibility, thus the following shouldn't be executed in Exercise 08.
+        printf("\n%s exits, but no petkind called %s\n", pi->petname, pi->petkind);
     }
 }
