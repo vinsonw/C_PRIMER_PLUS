@@ -100,7 +100,7 @@ bool DeleteItem(const Item *pi, Tree *ptree)
     if (look.child == NULL)
         return false;
     
-    if (look.child == NULL)
+    if (look.parent == NULL)
         DeleteNode(&ptree->root);
     else if (look.parent->left == look.child)
         DeleteNode(&look.parent->left);
